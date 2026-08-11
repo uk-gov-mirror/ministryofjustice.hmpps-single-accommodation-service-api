@@ -14,6 +14,7 @@ class CaseApplicationService(
   private val caseRepository: CaseRepository,
   private val caseOrchestrationService: CaseMutationOrchestrationService,
   private val caseCreationService: CaseCreationService,
+  private val caseSnapshotAssembler: CaseSnapshotAssembler,
 ) {
   private val log = LoggerFactory.getLogger(CaseApplicationService::class.java)
   private val maxAttempts = 3
@@ -44,7 +45,7 @@ class CaseApplicationService(
 
   @Transactional
   fun upsertCase(crn: String, prisonNumber: String?, upsertData: Boolean): CaseEntity {
-    val caseDto = caseOrchestrationService.getCurrentCaseResult(crn).data
+    val caseDto = caseOrchestrationService.getCurrentCaseResult(crn = crn, prisonNumber = prisonNumber).data
 
     val existingCase = caseRepository.findByIdentifiers(
       crns = listOf(crn),
@@ -53,7 +54,7 @@ class CaseApplicationService(
 
     val aggregate = existingCase?.let(CaseMapper::toAggregate) ?: CaseAggregate.hydrateNew()
     if (upsertData) {
-      aggregate.upsertCase(caseDto)
+      caseSnapshotAssembler.upsertCase(aggregate, caseDto)
     }
 
     val entity = existingCase?.let {
@@ -63,12 +64,5 @@ class CaseApplicationService(
     return caseRepository.save(entity)
   }
 }
-
-fun CaseAggregate.upsertCase(caseMutationOrchestrationDto: CaseMutationOrchestrationDto): CaseAggregate = this.upsertCase(
-  tierScore = caseMutationOrchestrationDto.tier?.tierScore,
-  firstName = caseMutationOrchestrationDto.cpr?.firstName,
-  lastName = caseMutationOrchestrationDto.cpr?.lastName,
-  dateOfBirth = caseMutationOrchestrationDto.cpr?.dateOfBirth,
-)
 
 data class CrnToPrisonNumber(val crn: String, val prisonNumber: String?)

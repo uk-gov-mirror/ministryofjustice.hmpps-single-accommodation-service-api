@@ -4,6 +4,7 @@ dependencies {
   implementation(libs.hmpps.starter)
   implementation(libs.spring.data.jpa)
   implementation(libs.spring.json)
+  implementation(libs.jackson.module.kotlin)
   implementation(libs.coroutines.core)
   implementation(libs.hmpps.sqs)
   implementation(libs.shedlock.spring)

@@ -1,11 +1,15 @@
 package uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.mutation.application.mapper
 
+import tools.jackson.databind.json.JsonMapper
+import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.common.dtos.AccommodationSummaryDto
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.persistence.entity.CaseEntity
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.persistence.entity.CaseIdentifierEntity
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.persistence.entity.IdentifierType
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.mutation.domain.aggregate.CaseAggregate
 
 object CaseMapper {
+
+  private val jsonMapper: JsonMapper = JsonMapper.builder().findAndAddModules().build()
 
   private fun buildIdentifiers(crn: String, prisonNumber: String?) = buildMap {
     put(crn, IdentifierType.CRN)
@@ -19,6 +23,9 @@ object CaseMapper {
     firstName = entity.firstName,
     lastName = entity.lastName,
     dateOfBirth = entity.dateOfBirth,
+    currentAccommodation = entity.currentAccommodation?.let { jsonMapper.readValue(it, AccommodationSummaryDto::class.java) },
+    nextAccommodation = entity.nextAccommodation?.let { jsonMapper.readValue(it, AccommodationSummaryDto::class.java) },
+    accommodationStatus = entity.accommodationStatus,
   )
 
   fun create(snapshot: CaseAggregate.CaseSnapshot, crn: String, prisonNumber: String?): CaseEntity {
@@ -29,6 +36,9 @@ object CaseMapper {
       firstName = snapshot.firstName,
       lastName = snapshot.lastName,
       dateOfBirth = snapshot.dateOfBirth,
+      currentAccommodation = snapshot.currentAccommodation?.let { jsonMapper.writeValueAsString(it) },
+      nextAccommodation = snapshot.nextAccommodation?.let { jsonMapper.writeValueAsString(it) },
+      accommodationStatus = snapshot.accommodationStatus,
     )
     entity.addIdentifiers(buildIdentifiers(crn = crn, prisonNumber = prisonNumber))
     return entity
@@ -44,6 +54,9 @@ object CaseMapper {
     entity.firstName = snapshot.firstName
     entity.lastName = snapshot.lastName
     entity.dateOfBirth = snapshot.dateOfBirth
+    entity.currentAccommodation = snapshot.currentAccommodation?.let { jsonMapper.writeValueAsString(it) }
+    entity.nextAccommodation = snapshot.nextAccommodation?.let { jsonMapper.writeValueAsString(it) }
+    entity.accommodationStatus = snapshot.accommodationStatus
 
     identifiers?.let { entity.addIdentifiers(it) }
 
