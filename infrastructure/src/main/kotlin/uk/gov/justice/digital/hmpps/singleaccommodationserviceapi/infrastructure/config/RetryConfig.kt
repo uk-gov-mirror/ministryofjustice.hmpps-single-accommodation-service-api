@@ -11,6 +11,7 @@ import org.springframework.retry.annotation.EnableRetry
 import org.springframework.retry.annotation.Retryable
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.ResourceAccessException
+import org.springframework.web.reactive.function.client.WebClientResponseException
 
 @Configuration
 @EnableRetry
@@ -54,6 +55,7 @@ class RetryConfig {
   value = [
     HttpServerErrorException::class,
     ResourceAccessException::class,
+    WebClientResponseException::class,
   ],
 )
 annotation class RestClientRetry

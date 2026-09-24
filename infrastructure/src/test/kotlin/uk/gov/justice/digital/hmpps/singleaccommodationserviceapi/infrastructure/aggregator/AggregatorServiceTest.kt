@@ -4,7 +4,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.web.client.RestClientException
+import org.springframework.web.reactive.function.client.WebClientResponseException
 
 class AggregatorServiceTest {
   private val upstreamFailureReporter = mockk<UpstreamFailureReporter>(relaxed = true)
@@ -12,7 +12,7 @@ class AggregatorServiceTest {
 
   @Test
   fun `reports handled async failures without failing the whole aggregation`() {
-    val exception = RestClientException("upstream unavailable")
+    val exception = mockk<WebClientResponseException.InternalServerError>(relaxed = true)
 
     val result = aggregatorService.orchestrateAsyncCalls(
       standardCallsNoIteration = mapOf(

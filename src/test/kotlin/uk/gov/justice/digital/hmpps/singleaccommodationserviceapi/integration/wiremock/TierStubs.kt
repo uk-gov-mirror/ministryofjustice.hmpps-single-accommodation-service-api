@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.okJson
 import com.github.tomakehurst.wiremock.client.WireMock.serverError
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.client.tier.Tier
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.utils.JsonHelper.jsonMapper
+import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.integration.wiremock.WireMockInitializer.Companion.resolveWiremockUrl
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.integration.wiremock.WireMockInitializer.Companion.sasWiremock
 
 object TierStubs {
@@ -21,11 +22,13 @@ object TierStubs {
     )
   }
 
-  fun getTierServerErrorResponse(crn: String) {
+  fun getTierServerErrorResponse(crn: String): String {
+    val path = "/v2/crn/$crn/tier"
     sasWiremock.stubFor(
-      get(WireMock.urlPathEqualTo("/v2/crn/$crn/tier"))
+      get(WireMock.urlPathEqualTo(path))
         .willReturn(serverError()),
     )
+    return resolveWiremockUrl(path)
   }
 
   fun getTierNotFoundResponse(crn: String) {

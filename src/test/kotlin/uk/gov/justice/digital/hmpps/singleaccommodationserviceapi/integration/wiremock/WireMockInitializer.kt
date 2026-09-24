@@ -26,6 +26,8 @@ class WireMockInitializer :
         sasWiremock.start()
       }
     }
+
+    fun resolveWiremockUrl(path: String) = "${sasWiremock.baseUrl()}$path"
   }
 
   override fun initialize(context: ConfigurableApplicationContext) {

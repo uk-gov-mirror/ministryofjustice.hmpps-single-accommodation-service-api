@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.client.approvedpremises.CasReferralHistory
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.client.approvedpremises.CasService
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.utils.JsonHelper.jsonMapper
+import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.integration.wiremock.WireMockInitializer.Companion.resolveWiremockUrl
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.integration.wiremock.WireMockInitializer.Companion.sasWiremock
 
 object ApprovedPremisesStubs {
@@ -48,18 +49,22 @@ object ApprovedPremisesStubs {
     )
   }
 
-  fun getCas1CurrentPremisesServerErrorResponse(crn: String) {
+  fun getCas1CurrentPremisesServerErrorResponse(crn: String): String {
+    val path = "/cas1/external/cases/$crn/premises/current"
     sasWiremock.stubFor(
-      get(urlPathEqualTo("/cas1/external/cases/$crn/premises/current"))
+      get(urlPathEqualTo(path))
         .willReturn(serverError()),
     )
+    return resolveWiremockUrl(path)
   }
 
-  fun getCas3CurrentPremisesServerErrorResponse(crn: String) {
+  fun getCas3CurrentPremisesServerErrorResponse(crn: String): String {
+    val path = "/cas3/external/cases/$crn/premises/current"
     sasWiremock.stubFor(
-      get(urlPathEqualTo("/cas3/external/cases/$crn/premises/current"))
+      get(urlPathEqualTo(path))
         .willReturn(serverError()),
     )
+    return resolveWiremockUrl(path)
   }
 
   fun getCas1SuitableApplicationOKResponse(crn: String, response: Cas1Application) {
