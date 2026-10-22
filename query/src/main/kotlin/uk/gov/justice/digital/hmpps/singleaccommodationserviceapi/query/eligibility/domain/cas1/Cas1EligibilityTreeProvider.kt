@@ -41,33 +41,30 @@ class Cas1EligibilityTreeProvider(
   private fun build(): DecisionNode {
     val confirmed = builder.confirmed()
     val notEligible = builder.notEligible(ServiceType.CAS1)
-    val placementBooked = builder.outcome(
-      "placementBooked",
-      serviceResult(),
-    )
+    val placementBooked = builder.outcome("return status \"placementBooked\"", serviceResult())
 
     val eligibilityNode = builder
       .ruleSet("Cas1Eligibility", eligibility)
       .onPass(confirmed)
-      .onFail(notEligible)
+      .onFail(notEligible).propagateContextOnFailure()
       .build()
 
     val completionNode = builder
-      .ruleSet("Cas1Completion", completion, completionContextUpdater)
+      .ruleSet("Cas1Completion", completion)
       .onPass(placementBooked)
-      .onFail(confirmed)
+      .onFail(confirmed).applyContextUpdaterOnFailure(completionContextUpdater)
       .build()
 
     val suitabilityNode = builder
-      .ruleSet("Cas1Suitability", suitability, suitabilityContextUpdater)
+      .ruleSet("Cas1Suitability", suitability)
       .onPass(completionNode)
-      .onFail(eligibilityNode)
+      .onFail(eligibilityNode).applyContextUpdaterOnFailure(suitabilityContextUpdater)
       .build()
 
     return builder
-      .ruleSet("Cas1Upcoming", upcoming, upcomingContextUpdater)
+      .ruleSet("Cas1Upcoming", upcoming)
       .onPass(suitabilityNode)
-      .onFail(eligibilityNode)
+      .onFail(eligibilityNode).applyContextUpdaterOnFailure(upcomingContextUpdater)
       .build()
   }
 

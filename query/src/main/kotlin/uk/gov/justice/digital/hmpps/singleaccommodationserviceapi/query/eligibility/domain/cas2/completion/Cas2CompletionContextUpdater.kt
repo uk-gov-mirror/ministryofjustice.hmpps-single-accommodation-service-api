@@ -13,8 +13,6 @@ class Cas2CompletionContextUpdater(
   private val sentryService: SentryService,
 ) : ContextUpdater() {
 
-  override val description = set("Started and continue CAS2 application")
-
   val submitted = "submitted"
   val moreInfoRequested = "moreInfoRequested"
   val awaitingDecision = "awaitingDecision"
@@ -22,6 +20,7 @@ class Cas2CompletionContextUpdater(
   val placeOffered = "placeOffered"
   val offerAccepted = "offerAccepted"
   val unknown = "unknown"
+  val arrived = "arrived"
 
   override val outcomes = mapOf(
     submitted to ServiceResultSpec(
@@ -45,6 +44,9 @@ class Cas2CompletionContextUpdater(
     unknown to ServiceResultSpec(
       serviceStatus = ServiceStatusNew.CAS2_UNKNOWN,
     ),
+    arrived to ServiceResultSpec(
+      serviceStatus = ServiceStatusNew.CAS2_ARRIVED,
+    ),
   )
 
   override fun toServiceResult(context: EvaluationContext) = when (context.data.cas2Application?.submittedApplication?.latestAssessmentStatus) {
@@ -54,6 +56,7 @@ class Cas2CompletionContextUpdater(
     Cas2AssessmentStatus.ON_WAITING_LIST -> outcome(onWaitingList)
     Cas2AssessmentStatus.PLACE_OFFERED -> outcome(placeOffered)
     Cas2AssessmentStatus.OFFER_ACCEPTED -> outcome(offerAccepted)
+    Cas2AssessmentStatus.AWAITING_ARRIVAL -> outcome(arrived)
     else -> outcome(unknown).also {
       val latestAssessmentStatus = context.data.cas2Application.submittedApplication?.latestAssessmentStatus
       sentryService.captureErrorMessage(

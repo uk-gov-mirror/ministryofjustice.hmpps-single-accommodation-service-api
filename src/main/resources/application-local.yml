@@ -4,7 +4,7 @@ hmpps-auth:
 event:
   details-url:
     proposed-accommodation-updated: http://localhost:8080/proposed-accommodations/#id
-    duty-to-refer-updated: http://localhost:8080/duty-to-refers/#id
+    duty-to-refer: http://localhost:8080/duty-to-refers/#id
 
 service:
   commissioned-rehabilitative-services-ui:
@@ -75,3 +75,7 @@ sentry:
 case-list:
   onboarded-prison-codes:
     - SAS
+
+frontend:
+  duty-to-refer:
+    view: https://single-accommodation-service-dev.hmpps.service.justice.gov.uk/cases/#crn/dtr/#dtrId/details

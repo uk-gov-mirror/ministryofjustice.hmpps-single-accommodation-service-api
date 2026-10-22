@@ -65,7 +65,7 @@ shedlock:
 event:
   details-url:
     proposed-accommodation-updated: http://api-host/proposed-accommodations/#id
-    duty-to-refer-updated: http://api-host/duty-to-refers/#id
+    duty-to-refer: http://api-host/duty-to-refers/#id
 
 case-refresh:
   worker:
@@ -150,3 +150,7 @@ logging:
     root: WARN
     uk.gov.justice.digital.hmpps.singleaccommodationserviceapi: INFO
     uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.sentry: DEBUG
+
+frontend:
+  duty-to-refer:
+    view: https://single-accommodation-service-test.hmpps.service.justice.gov.uk/cases/#crn/dtr/#dtrId/details

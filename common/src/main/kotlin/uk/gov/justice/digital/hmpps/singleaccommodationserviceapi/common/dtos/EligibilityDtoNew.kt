@@ -256,6 +256,10 @@ enum class ServiceStatusNew(
     service = ServiceType.CAS2,
     link = Link(text = EligibilityKeys.VIEW_APPLICATION, type = LinkType.CAS2_VIEW_APPLICATION),
   ),
+  CAS2_ARRIVED(
+    service = ServiceType.CAS2,
+    link = Link(text = EligibilityKeys.VIEW_APPLICATION, type = LinkType.CAS2_VIEW_APPLICATION),
+  ),
   CAS2_WITHDRAWN(
     service = ServiceType.CAS2,
     link = Link(text = EligibilityKeys.START_NEW_APPLICATION, type = LinkType.CAS2_START_APPLICATION),
@@ -420,7 +424,9 @@ enum class LinkType {
 enum class FailureReason {
   MALE_NOT_HIGH_RISK_TIER,
   NON_MALE_NOT_HIGH_RISK_TIER,
+  NOT_IN_PRISON_OR_CAS1_ACCOMMODATION,
   INVALID_CURRENT_ACCOMMODATION_TYPE,
+  INVALID_TIER,
   CRS_NOT_SUBMITTED_MALE,
   CRS_NOT_SUBMITTED_NON_MALE,
   HAS_NEXT_ACCOMMODATION,
@@ -432,6 +438,8 @@ enum class FailureReason {
   IN_CAS2_ACCOMMODATION,
   IN_CAS3_ACCOMMODATION,
   IN_COMMUNITY,
+  SEXUAL_OFFENCE_REGISTRATIONS_PRESENT,
+  IN_PRISON_NO_RELEASE_DATE,
 }
 
 enum class BlockingReason {

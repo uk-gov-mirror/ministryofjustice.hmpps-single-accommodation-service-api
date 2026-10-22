@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.test.web.servlet.client.expectBody
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.assertions.assertThatJson
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.client.approvedpremises.Cas1ApplicationStatus
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.client.approvedpremises.Cas1PlacementStatus
@@ -19,6 +20,7 @@ import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.client.corepersonrecord.probation.AddressStatusCode
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.client.corepersonrecord.probation.AddressUsageCode
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.client.prisonersearch.InOutStatus
+import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.client.sasanddelius.SexualOffenceRegistrations
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.factories.buildCanonicalAddress
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.factories.buildCas1Application
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.infrastructure.factories.buildCas1ApplicationSummary
@@ -61,6 +63,7 @@ import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.integration.wi
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.integration.wiremock.CorePersonRecordStubs
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.integration.wiremock.HmppsAuthStubs
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.integration.wiremock.PrisonerSearchStubs
+import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.integration.wiremock.SasAndDeliusStubs
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.integration.wiremock.TierStubs
 import uk.gov.justice.digital.hmpps.singleaccommodationserviceapi.utils.DatabaseUtils.SasTables.DUTY_TO_REFER
 import java.time.LocalDate
@@ -135,6 +138,7 @@ class EligibilityControllerIT : IntegrationTestBase() {
     createTestDataSetupUserAndDeliusUser()
 
     CorePersonRecordStubs.getCorePersonRecordOKResponse(crn = crn, response = corePersonRecord)
+    SasAndDeliusStubs.stubGetSexualOffenceRegistrations(crn, SexualOffenceRegistrations(crn, emptyList()))
     PrisonerSearchStubs.getPrisonerOKResponse(prisonNumber = prisonNumber, response = buildPrisoner(prisonNumber = prisonNumber))
     CommissionedRehabilitativeServicesStubs.getCrsOkResponse(
       crn = crn,
@@ -332,11 +336,17 @@ class EligibilityControllerIT : IntegrationTestBase() {
 
   @Test
   fun `should get eligibility for cas 3 blocking reason`() {
-    val entity = buildCaseEntity(id = dutyToReferCaseId) {
+    // eligible for CAS2 but not CAS1
+    TierStubs.getTierOKResponse(crn, buildTier(tierScore = "E"))
+
+    val entity = buildCaseEntity(
+      id = dutyToReferCaseId,
+    ) {
       withCrn(crn)
       withPrisonNumber(prisonNumber)
     }
     caseRepository.save(entity)
+
     PrisonerSearchStubs.getPrisonerOKResponse(prisonNumber = prisonNumber, response = buildPrisoner(prisonNumber = prisonNumber, inOutStatus = InOutStatus.IN))
 
     val cas3Application = buildCas3Application(
@@ -347,12 +357,13 @@ class EligibilityControllerIT : IntegrationTestBase() {
         submittedDate = LocalDate.of(2025, 1, 2),
       ),
     )
+
     ApprovedPremisesStubs.getCas3SuitableApplicationOKResponse(crn = crn, response = cas3Application)
 
     restTestClient.get().uri("/cases/{crn}/eligibility", crn)
       .withDeliusUserJwt()
       .exchangeSuccessfully()
-      .expectBody(String::class.java)
+      .expectBody<String>()
       .value {
         assertThatJson(it!!).matchesExpectedJson(
           expectedGetEligibilityResponseCannotStartYet(
@@ -397,7 +408,7 @@ class EligibilityControllerIT : IntegrationTestBase() {
     restTestClient.get().uri("/cases/{crn}/eligibility", crn)
       .withDeliusUserJwt()
       .exchangeSuccessfully()
-      .expectBody(String::class.java)
+      .expectBody<String>()
       .value {
         assertThatJson(it!!).matchesExpectedJson(
           expectedGetEligibilityResponseTierNotFound(
@@ -460,7 +471,7 @@ class EligibilityControllerIT : IntegrationTestBase() {
     }
     caseRepository.save(entity)
 
-    val existingEntity = dutyToReferRepository.save(
+    dutyToReferRepository.save(
       buildDutyToReferEntity(
         caseId = entity.id,
         localAuthorityAreaId = localAuthorityArea.id,
