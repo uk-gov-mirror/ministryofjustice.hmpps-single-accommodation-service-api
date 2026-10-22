@@ -29,6 +29,9 @@ class HttpServiceProxiesForAuthorizationCodeFlowConfig(
   )
 
   /**
+   * UPDATE - This can be refactored to use a WebClient when the function in the NomisUserRoles client
+   * is swapped from `/me` to `/users/{username}`. We can then drop the requiredment for usign the JWT
+   *
    * This uses a RestClient with a configuration that does not support the hmpps proxy config
    * (unlike the HttpServiceProxies defined in [HttpServiceProxiesConfig])
    *
