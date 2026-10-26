@@ -550,15 +550,11 @@ class CaseControllerIT : IntegrationTestBase() {
       seedAllCaseEntities(listOf(case), "A1")
 
       assertThat(caseRepository.findAll().size).isEqualTo(1)
-      val result = webTestClient.get().uri { it.path("/search/$crn").build() }
+      webTestClient.get().uri { it.path("/search/$crn").build() }
         .withDeliusUserJwt()
         .exchangeSuccessfully()
-
-      result.expectBody()
-        .jsonPath("$.data.length()").isEqualTo(1)
-        .consumeWith { response ->
-          assertThatJson(String(response.responseBody!!)).matchesExpectedJson(expectedGetCaseResponseSearch())
-        }
+        .expectBody()
+        .json(expectedGetCaseResponseSearch())
 
       assertThat(caseRepository.findAll().size).isEqualTo(1)
 

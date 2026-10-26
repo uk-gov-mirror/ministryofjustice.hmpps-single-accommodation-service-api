@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.toEntity
 import reactor.netty.http.client.HttpClient
 import java.time.Duration
 
@@ -51,7 +52,7 @@ private fun WebClient.ping(): Health = try {
   val response = get()
     .uri("/health/ping")
     .retrieve()
-    .toEntity(String::class.java)
+    .toEntity<String>()
     .block()
 
   Health.up()
