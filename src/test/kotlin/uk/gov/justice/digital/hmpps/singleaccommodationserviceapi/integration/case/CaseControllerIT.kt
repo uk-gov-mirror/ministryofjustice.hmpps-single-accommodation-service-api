@@ -205,15 +205,11 @@ class CaseControllerIT : IntegrationTestBase() {
     val result = webTestClient.get().uri { it.path("/case-list").build() }
       .withDeliusUserJwt()
       .exchangeSuccessfully()
-
-    result.expectBody().jsonPath("$.data.length()").isEqualTo(20)
+      .expectBody()
+      .jsonPath("$.data.length()").isEqualTo(20)
+      .json(expectedGetCaseListResponse())
 
     assertThat(caseRepository.findAll().size).isEqualTo(20)
-
-    result.expectBody<String>()
-      .value {
-        assertThatJson(it!!).matchesExpectedJson(expectedGetCaseListResponse())
-      }
 
     // verify we call case-list endpoint 20 times (once per CRN)
     sasWiremock.verify(
@@ -557,9 +553,11 @@ class CaseControllerIT : IntegrationTestBase() {
       val result = webTestClient.get().uri { it.path("/search/$crn").build() }
         .withDeliusUserJwt()
         .exchangeSuccessfully()
-      result.expectBody<String>()
-        .value {
-          assertThatJson(it!!).matchesExpectedJson(expectedGetCaseResponseSearch())
+
+      result.expectBody()
+        .jsonPath("$.data.length()").isEqualTo(1)
+        .consumeWith { response ->
+          assertThatJson(String(response.responseBody!!)).matchesExpectedJson(expectedGetCaseResponseSearch())
         }
 
       assertThat(caseRepository.findAll().size).isEqualTo(1)
