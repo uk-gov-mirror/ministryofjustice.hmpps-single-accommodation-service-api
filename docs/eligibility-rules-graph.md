@@ -322,7 +322,7 @@ flowchart TD
 
 **return status CAS3_NOT_ELIGIBLE** (Outcome)
 
-**Set current status to CAS3_UPCOMING** (ContextUpdater)
+
 
 ## CRS
 
@@ -687,7 +687,7 @@ Used by: Cas3Suitability (CAS3) on fail
 
 Set current status to CAS3_UPCOMING
 
-Used by: Cas3Upcoming (CAS3)
+Used by: Cas3Upcoming (CAS3) on fail
 
 | Status | Action | Link type |
 | --- | --- | --- |
