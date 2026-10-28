@@ -180,16 +180,18 @@ object RulesGraphMarkdownRenderer {
   private fun boldUiStatuses(text: String): String = uiStatusRegex.replace(text) { "<b>${it.value}</b>" }
 
   private fun mermaidShape(node: GraphNode): String {
-    val text = escape(label(node))
+    val text = escape("<div style='text-align:left'>${label(node)}</div>")
     val roundBox = node.kind == GraphNodeKind.RULE_SET
     return if (roundBox) "(\"$text\")" else "[\"$text\"]"
   }
 
-  private fun ruleSetLabel(node: GraphNode): String = if (node.rules.isEmpty()) {
-    "always PASS"
-  } else {
-    node.ruleSet!!.getRules()
-      .joinToString(separator = "\n- ", prefix = "- ") { it.description }
+  private fun ruleSetLabel(node: GraphNode): String {
+    val descriptions = node.ruleSet?.getRules().orEmpty().map { it.description }
+    return when (descriptions.size) {
+      0 -> "always PASS"
+      1 -> descriptions.single()
+      else -> descriptions.joinToString(separator = "\n• ", prefix = "• ")
+    }
   }
 
   private fun renderNode(node: GraphNode): String = buildString {
