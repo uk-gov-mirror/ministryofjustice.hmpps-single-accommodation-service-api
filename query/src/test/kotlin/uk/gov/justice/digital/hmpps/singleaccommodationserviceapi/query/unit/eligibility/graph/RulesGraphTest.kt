@@ -67,7 +67,7 @@ class RulesGraphTest {
       assertThat(updaterNode.terminal).isTrue()
 
       val markdown = RulesGraphMarkdownRenderer.render(listOf(graph))
-      assertThat(markdown).containsPattern("(?m)^  class (.*,)?${updaterNode.id}(,.*)? outcomeNode$")
+      assertThat(markdown).containsPattern("(?m)^ {2}class (.*,)?${updaterNode.id}(,.*)? outcomeNode$")
       assertThat(graph.nodes.map { it.title }).containsExactlyInAnyOrder(
         "ExampleEligibility",
         "Terminal updater",
@@ -147,6 +147,55 @@ class RulesGraphTest {
       assertThat(graph.nodes.filter { it.title == "current status" }).hasSize(1)
       val confirmedId = graph.nodes.single { it.title == "current status" }.id
       assertThat(graph.edges.filter { it.to == confirmedId && it.label == "PASS" }).hasSize(2)
+    }
+
+    @Test
+    fun `empty RuleSet is skipped and its incoming edge follows the PASS branch`() {
+      val empty = builder
+        .ruleSet(StubRuleSet(name = "Empty", rules = emptyList()))
+        .onPass(builder.confirmed())
+        .onFail(builder.notEligible(ServiceType.CAS1)).propagateContextOnFailure()
+        .build()
+      val root = builder
+        .ruleSet(StubRuleSet(name = "Root", rules = listOf(PrioritisedRule(StubRule("root")))))
+        .onPass(empty)
+        .onFail(builder.notEligible(ServiceType.CAS2)).propagateContextOnFailure()
+        .build()
+
+      val graph = RulesGraphWalker().walk("EMPTY", root)
+
+      assertThat(graph.nodes.map { it.title }).containsExactlyInAnyOrder("Root", "current status", "Not Eligible")
+      assertThat(graph.edges.map { "${it.from}->${it.label}->${it.to}" }).containsExactlyInAnyOrder(
+        "Root->PASS->current_status",
+        "Root->FAIL->Not_Eligible",
+      )
+    }
+
+    @Test
+    fun `empty root RuleSets are skipped so the graph starts at their PASS branch`() {
+      val first = builder
+        .ruleSet(StubRuleSet(name = "First", rules = listOf(PrioritisedRule(StubRule("first")))))
+        .onPass(builder.confirmed())
+        .onFail(builder.notEligible(ServiceType.CAS1)).propagateContextOnFailure()
+        .build()
+      val innerEmpty = builder
+        .ruleSet(StubRuleSet(name = "InnerEmpty", rules = emptyList()))
+        .onPass(first)
+        .onFail(builder.notEligible(ServiceType.CAS2)).propagateContextOnFailure()
+        .build()
+      val root = builder
+        .ruleSet(StubRuleSet(name = "EmptyRoot", rules = emptyList()))
+        .onPass(innerEmpty)
+        .onFail(builder.notEligible(ServiceType.CAS3)).propagateContextOnFailure()
+        .build()
+
+      val graph = RulesGraphWalker().walk("EMPTY_ROOT", root)
+
+      assertThat(graph.nodes.map { it.title }).containsExactly("First", "current status", "Not Eligible")
+      assertThat(graph.edges.map { "${it.from}->${it.label}->${it.to}" }).containsExactlyInAnyOrder(
+        "First->PASS->current_status",
+        "First->FAIL->Not_Eligible",
+      )
     }
 
     @Test
@@ -265,7 +314,7 @@ class RulesGraphTest {
 
       assertThat(markdown).contains("## EXAMPLE")
       assertThat(markdown).contains("flowchart TD")
-      assertThat(markdown).contains("ExampleEligibility(\"ExampleEligibility (1)")
+      assertThat(markdown).contains("ExampleEligibility(\"- FAIL if example\")")
       assertThat(markdown).contains("ExampleEligibility -->|PASS| current_status")
       assertThat(markdown).contains("ExampleEligibility -->|FAIL| Not_Eligible")
       assertThat(markdown).contains("linkStyle 0 stroke:green,stroke-width:2px")

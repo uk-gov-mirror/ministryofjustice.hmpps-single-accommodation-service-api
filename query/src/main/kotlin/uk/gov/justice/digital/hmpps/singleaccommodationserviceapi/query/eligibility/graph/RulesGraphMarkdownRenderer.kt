@@ -185,14 +185,11 @@ object RulesGraphMarkdownRenderer {
     return if (roundBox) "(\"$text\")" else "[\"$text\"]"
   }
 
-  private fun ruleSetLabel(node: GraphNode): String {
-    val count = node.rules.size
-    return if (count == 0) {
-      "${node.title} (always PASS)"
-    } else {
-      "${node.title} ($count)" + "\n\n" + node.ruleSet!!.getRules()
-        .joinToString(separator = "\n- ", prefix = "- ") { it.description ?: "anonymous" }
-    }
+  private fun ruleSetLabel(node: GraphNode): String = if (node.rules.isEmpty()) {
+    "always PASS"
+  } else {
+    node.ruleSet!!.getRules()
+      .joinToString(separator = "\n- ", prefix = "- ") { it.description }
   }
 
   private fun renderNode(node: GraphNode): String = buildString {
