@@ -21,26 +21,8 @@ class RulesGraphWalker {
   fun walk(provider: EligibilityTreeProvider): RulesGraph = walk(treeName(provider), provider.tree())
 
   fun walk(treeName: String, root: DecisionNode): RulesGraph {
-    visitStart(root)
+    visit(root)
     return RulesGraph(treeName, nodes.values.toList(), edges)
-  }
-
-  // an empty root RuleSet always passes, so start the graph from whatever its PASS branch leads to
-  private fun visitStart(root: DecisionNode) {
-    if (root !is RuleSetNode || root.ruleSet.getRules().isNotEmpty()) {
-      visit(root)
-      return
-    }
-    val updater = root.onPassContextUpdater
-    if (updater == null || updater === ContextUpdater.identity()) {
-      visitStart(root.onPass)
-      return
-    }
-    val updaterNode = updater.toGraphNode()
-    nodes[updater] = updaterNode
-    if (!updater.terminalNode) {
-      addOutcomeEdge(updaterNode, root.onPass, null, "PASS")
-    }
   }
 
   fun visit(node: DecisionNode) {
@@ -94,12 +76,6 @@ class RulesGraphWalker {
       if (contextUpdater.terminalNode) return
 
       contextUpdaterNode
-    }
-
-    if (toNode is RuleSetNode && toNode.ruleSet.getRules().isEmpty()) {
-      // an empty RuleSet always passes, so skip drawing it and follow its PASS branch
-      addOutcomeEdge(onPassSourceNode, toNode.onPass, toNode.onPassContextUpdater, edgeLabel)
-      return
     }
 
     visit(toNode)

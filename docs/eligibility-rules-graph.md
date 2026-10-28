@@ -9,11 +9,11 @@ Diamond RuleSet nodes have a FAIL context updater.
 ```mermaid
 %%{init: {"flowchart": {"wrappingWidth": 800}}}%%
 flowchart TD
-  Upcoming("<div style='text-align:left'>FAIL if not within 1 year of release from current accommodation</div>")
+  Upcoming("FAIL if not within 1 year of release from current accommodation")
   Suitability("<div style='text-align:left'>• FAIL if candidate does not have an application
 • FAIL if expired application is not upcoming or arrived
 • FAIL if candidate does not have a suitable application</div>")
-  updater_Arrived___Not_Arrived___Placement_Booked___Placement_Cancelled___Placement_Request_Not_Started___Placement_Request_Withdrawn___Placement_Request_Rejected___Placement_Request_Submitted___Information_Requested___Submitted["<div style='text-align:left'><b>Arrived</b>,
+  updater_Arrived___Not_Arrived___Placement_Booked___Placement_Cancelled___Placement_Request_Not_Started___Placement_Request_Withdrawn___Placement_Request_Rejected___Placement_Request_Submitted___Information_Requested___Submitted["<b>Arrived</b>,
  <b>Not Arrived</b>,
  <b>Placement Booked</b>,
  <b>Placement Cancelled</b>,
@@ -22,18 +22,18 @@ flowchart TD
  <b>Placement Request Rejected</b>,
  <b>Placement Request Submitted</b>,
  <b>Information Requested</b>,
- <b>Submitted</b></div>"]
-  updater_Set_current_status_to_one_of__Not_Submitted___Application_Rejected___Not_Started["<div style='text-align:left'>Set current status to one of:
+ <b>Submitted</b>"]
+  updater_Set_current_status_to_one_of__Not_Submitted___Application_Rejected___Not_Started["Set current status to one of:
 <b>Not Submitted</b>,
  <b>Application Rejected</b>,
- <b>Not Started</b></div>"]
+ <b>Not Started</b>"]
   Eligibility_Tier("<div style='text-align:left'>• FAIL if candidate is Male and is not Tier A, B or C
 • FAIL if candidate is not Male and is not Tier A, B, C or D</div>")
-  Eligibility_Current_Accommodation("<div style='text-align:left'>FAIL if individual is not currently in prison or CAS1 accommodation</div>")
-  Eligibility_Rosh("<div style='text-align:left'>FAIL if candidate has no ROSH level</div>")
-  current_status["<div style='text-align:left'>current status</div>"]
-  Not_Eligible["<div style='text-align:left'><b>Not Eligible</b></div>"]
-  updater_Set_current_status_to_Upcoming["<div style='text-align:left'>Set current status to <b>Upcoming</b></div>"]
+  Eligibility_Current_Accommodation("FAIL if individual is not currently in prison or CAS1 accommodation")
+  Eligibility_Rosh("FAIL if candidate has no ROSH level")
+  current_status["current status"]
+  Not_Eligible["<b>Not Eligible</b>"]
+  updater_Set_current_status_to_Upcoming["Set current status to <b>Upcoming</b>"]
   Suitability -->|PASS| updater_Arrived___Not_Arrived___Placement_Booked___Placement_Cancelled___Placement_Request_Not_Started___Placement_Request_Withdrawn___Placement_Request_Rejected___Placement_Request_Submitted___Information_Requested___Submitted
   Suitability -->|FAIL| updater_Set_current_status_to_one_of__Not_Submitted___Application_Rejected___Not_Started
   Eligibility_Rosh -->|PASS| current_status
@@ -135,10 +135,10 @@ Not Submitted,
 ```mermaid
 %%{init: {"flowchart": {"wrappingWidth": 800}}}%%
 flowchart TD
-  Upcoming("<div style='text-align:left'>FAIL if not within 15 days of release from current accommodation</div>")
+  Upcoming("FAIL if not within 15 days of release from current accommodation")
   Suitability("<div style='text-align:left'>• FAIL if candidate does not have a submitted application
 • FAIL if candidate has an unsuitable status</div>")
-  updater_Submitted___More_Information_Needed___Awaiting_Decision___On_Waiting_List___Place_Offered___Offer_Accepted___Unknown___Arrived___Awaiting_Arrival["<div style='text-align:left'><b>Submitted</b>,
+  updater_Submitted___More_Information_Needed___Awaiting_Decision___On_Waiting_List___Place_Offered___Offer_Accepted___Unknown___Arrived___Awaiting_Arrival["<b>Submitted</b>,
  <b>More Information Needed</b>,
  <b>Awaiting Decision</b>,
  <b>On Waiting List</b>,
@@ -146,26 +146,26 @@ flowchart TD
  <b>Offer Accepted</b>,
  <b>Unknown</b>,
  <b>Arrived</b>,
- <b>Awaiting Arrival</b></div>"]
-  updater_Set_current_status_to_one_of__Not_Started___Not_Submitted___Offer_Declined_or_Withdrawn___Cancelled___Withdrawn___Unknown["<div style='text-align:left'>Set current status to one of:
+ <b>Awaiting Arrival</b>"]
+  updater_Set_current_status_to_one_of__Not_Started___Not_Submitted___Offer_Declined_or_Withdrawn___Cancelled___Withdrawn___Unknown["Set current status to one of:
 <b>Not Started</b>,
  <b>Not Submitted</b>,
  <b>Offer Declined or Withdrawn</b>,
  <b>Cancelled</b>,
  <b>Withdrawn</b>,
- <b>Unknown</b></div>"]
+ <b>Unknown</b>"]
   Eligibility_Person("<div style='text-align:left'>• FAIL if individual is under 18 years old
 • FAIL if candidate is not Tier A through G
 • FAIL if individual has sexual offence registrations.</div>")
-  Eligibility_Release_Date("<div style='text-align:left'>FAIL if the individual is in Prison and has no currentAccommodationEndDate</div>")
+  Eligibility_Release_Date("FAIL if the individual is in Prison and has no currentAccommodationEndDate")
   Eligibility_Current_Accommodation("<div style='text-align:left'>• FAIL if individual is in CAS3
 • FAIL if individual is in CAS2
 • FAIL if individual is in the community</div>")
-  Eligibility_Next_Accommodation("<div style='text-align:left'>FAIL if candidate has next accommodation</div>")
-  Eligibility_Rosh("<div style='text-align:left'>FAIL if candidate has no ROSH level</div>")
-  current_status["<div style='text-align:left'>current status</div>"]
-  Not_Eligible["<div style='text-align:left'><b>Not Eligible</b></div>"]
-  updater_Set_current_status_to_Upcoming["<div style='text-align:left'>Set current status to <b>Upcoming</b></div>"]
+  Eligibility_Next_Accommodation("FAIL if candidate has next accommodation")
+  Eligibility_Rosh("FAIL if candidate has no ROSH level")
+  current_status["current status"]
+  Not_Eligible["<b>Not Eligible</b>"]
+  updater_Set_current_status_to_Upcoming["Set current status to <b>Upcoming</b>"]
   Suitability -->|PASS| updater_Submitted___More_Information_Needed___Awaiting_Decision___On_Waiting_List___Place_Offered___Offer_Accepted___Unknown___Arrived___Awaiting_Arrival
   Suitability -->|FAIL| updater_Set_current_status_to_one_of__Not_Started___Not_Submitted___Offer_Declined_or_Withdrawn___Cancelled___Withdrawn___Unknown
   Eligibility_Rosh -->|PASS| current_status
@@ -284,31 +284,31 @@ Not Started,
 ```mermaid
 %%{init: {"flowchart": {"wrappingWidth": 800}}}%%
 flowchart TD
-  Upcoming("<div style='text-align:left'>FAIL if not within 15 days of release from current accommodation</div>")
+  Upcoming("FAIL if not within 15 days of release from current accommodation")
   Suitability("<div style='text-align:left'>• FAIL if CAS3 application is not suitable
 • FAIL if CAS3 application is not present
 • FAIL if booking is departed or closed
 • FAIL if CAS3 assessment is rejected or closed</div>")
-  updater_Bedspace_Offered___Booking_Confirmed___Not_Arrived___Booking_Cancelled___Submitted___Arrived["<div style='text-align:left'><b>Bedspace Offered</b>,
+  updater_Bedspace_Offered___Booking_Confirmed___Not_Arrived___Booking_Cancelled___Submitted___Arrived["<b>Bedspace Offered</b>,
  <b>Booking Confirmed</b>,
  <b>Not Arrived</b>,
  <b>Booking Cancelled</b>,
  <b>Submitted</b>,
- <b>Arrived</b></div>"]
-  updater_Set_current_status_to_one_of__Not_Started___Rejected___Not_Submitted["<div style='text-align:left'>Set current status to one of:
+ <b>Arrived</b>"]
+  updater_Set_current_status_to_one_of__Not_Started___Rejected___Not_Submitted["Set current status to one of:
 <b>Not Started</b>,
  <b>Rejected</b>,
- <b>Not Submitted</b></div>"]
-  Eligibility_Current_Accommodation("<div style='text-align:left'>FAIL if current accommodation is not Approved Premise (CAS1), CAS2, or Prison</div>")
-  Eligibility_Next_Accommodation("<div style='text-align:left'>FAIL if candidate has next accommodation</div>")
-  Eligibility_Rosh("<div style='text-align:left'>FAIL if candidate has no ROSH level</div>")
+ <b>Not Submitted</b>"]
+  Eligibility_Current_Accommodation("FAIL if current accommodation is not Approved Premise (CAS1), CAS2, or Prison")
+  Eligibility_Next_Accommodation("FAIL if candidate has next accommodation")
+  Eligibility_Rosh("FAIL if candidate has no ROSH level")
   Prerequisite("<div style='text-align:left'>• FAIL if DTR is submitted more than 26 weeks ago.
 • FAIL if CRS not submitted and male
 • FAIL if CRS not submitted and not male</div>")
-  current_status["<div style='text-align:left'>current status</div>"]
-  updater_Cannot_Start_Yet["<div style='text-align:left'><b>Cannot Start Yet</b></div>"]
-  Not_Eligible["<div style='text-align:left'><b>Not Eligible</b></div>"]
-  updater_Set_current_status_to_Upcoming["<div style='text-align:left'>Set current status to <b>Upcoming</b></div>"]
+  current_status["current status"]
+  updater_Cannot_Start_Yet["<b>Cannot Start Yet</b>"]
+  Not_Eligible["<b>Not Eligible</b>"]
+  updater_Set_current_status_to_Upcoming["Set current status to <b>Upcoming</b>"]
   Suitability -->|PASS| updater_Bedspace_Offered___Booking_Confirmed___Not_Arrived___Booking_Cancelled___Submitted___Arrived
   Suitability -->|FAIL| updater_Set_current_status_to_one_of__Not_Started___Rejected___Not_Submitted
   Prerequisite -->|PASS| current_status
@@ -421,15 +421,15 @@ Not Started,
 ```mermaid
 %%{init: {"flowchart": {"wrappingWidth": 800}}}%%
 flowchart TD
-  Upcoming("<div style='text-align:left'>FAIL if not within 12 weeks of release from current accommodation</div>")
-  Completion("<div style='text-align:left'>FAIL if no live CRS referral</div>")
-  Submitted["<div style='text-align:left'><b>Submitted</b></div>"]
-  updater_Set_current_status_to_Not_Started["<div style='text-align:left'>Set current status to <b>Not Started</b></div>"]
-  Eligibility_Settled("<div style='text-align:left'>FAIL if candidate is settled</div>")
-  Eligibility_Next_Accommodation("<div style='text-align:left'>FAIL if candidate has next accommodation</div>")
-  current_status["<div style='text-align:left'>current status</div>"]
-  Not_Required["<div style='text-align:left'><b>Not Required</b></div>"]
-  updater_Set_current_status_to_Upcoming["<div style='text-align:left'>Set current status to <b>Upcoming</b></div>"]
+  Upcoming("FAIL if not within 12 weeks of release from current accommodation")
+  Completion("FAIL if no live CRS referral")
+  Submitted["<b>Submitted</b>"]
+  updater_Set_current_status_to_Not_Started["Set current status to <b>Not Started</b>"]
+  Eligibility_Settled("FAIL if candidate is settled")
+  Eligibility_Next_Accommodation("FAIL if candidate has next accommodation")
+  current_status["current status"]
+  Not_Required["<b>Not Required</b>"]
+  updater_Set_current_status_to_Upcoming["Set current status to <b>Upcoming</b>"]
   Completion -->|PASS| Submitted
   Completion -->|FAIL| updater_Set_current_status_to_Not_Started
   Eligibility_Next_Accommodation -->|PASS| current_status
@@ -498,15 +498,15 @@ flowchart TD
   Suitability("<div style='text-align:left'>• FAIL if DTR status is not present
 • FAIL if DTR referral has been withdrawn
 • FAIL if DTR is submitted more than 26 weeks ago.</div>")
-  updater_Accepted___Not_Accepted___Submitted["<div style='text-align:left'><b>Accepted</b>,
+  updater_Accepted___Not_Accepted___Submitted["<b>Accepted</b>,
  <b>Not Accepted</b>,
- <b>Submitted</b></div>"]
-  updater_Set_current_status_to_Not_Started["<div style='text-align:left'>Set current status to <b>Not Started</b></div>"]
-  Eligibility("<div style='text-align:left'>FAIL if candidate has next accommodation</div>")
-  Upcoming("<div style='text-align:left'>FAIL if not within 8 weeks of release from current accommodation</div>")
-  current_status["<div style='text-align:left'>current status</div>"]
-  updater_Upcoming["<div style='text-align:left'><b>Upcoming</b></div>"]
-  Not_Required["<div style='text-align:left'><b>Not Required</b></div>"]
+ <b>Submitted</b>"]
+  updater_Set_current_status_to_Not_Started["Set current status to <b>Not Started</b>"]
+  Eligibility("FAIL if candidate has next accommodation")
+  Upcoming("FAIL if not within 8 weeks of release from current accommodation")
+  current_status["current status"]
+  updater_Upcoming["<b>Upcoming</b>"]
+  Not_Required["<b>Not Required</b>"]
   Suitability -->|PASS| updater_Accepted___Not_Accepted___Submitted
   Suitability -->|FAIL| updater_Set_current_status_to_Not_Started
   Upcoming -->|PASS| current_status
@@ -574,13 +574,13 @@ flowchart TD
 ```mermaid
 %%{init: {"flowchart": {"wrappingWidth": 800}}}%%
 flowchart TD
-  Completion("<div style='text-align:left'>FAIL if candidate has no next accommodation</div>")
-  Completed["<div style='text-align:left'><b>Completed</b></div>"]
-  updater_Set_current_status_to_Not_Started["<div style='text-align:left'>Set current status to <b>Not Started</b></div>"]
+  Completion("FAIL if candidate has no next accommodation")
+  Completed["<b>Completed</b>"]
+  updater_Set_current_status_to_Not_Started["Set current status to <b>Not Started</b>"]
   Eligibility("<div style='text-align:left'>• FAIL if candidate has a suitable CAS1 application
 • FAIL if candidate has suitable CAS3 application</div>")
-  current_status["<div style='text-align:left'>current status</div>"]
-  Not_Eligible["<div style='text-align:left'><b>Not Eligible</b></div>"]
+  current_status["current status"]
+  Not_Eligible["<b>Not Eligible</b>"]
   Completion -->|PASS| Completed
   Completion -->|FAIL| updater_Set_current_status_to_Not_Started
   Eligibility -->|PASS| current_status

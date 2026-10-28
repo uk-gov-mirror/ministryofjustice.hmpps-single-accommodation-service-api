@@ -180,7 +180,8 @@ object RulesGraphMarkdownRenderer {
   private fun boldUiStatuses(text: String): String = uiStatusRegex.replace(text) { "<b>${it.value}</b>" }
 
   private fun mermaidShape(node: GraphNode): String {
-    val text = escape("<div style='text-align:left'>${label(node)}</div>")
+    val label = label(node)
+    val text = escape(if (label.startsWith("• ")) "<div style='text-align:left'>$label</div>" else label)
     val roundBox = node.kind == GraphNodeKind.RULE_SET
     return if (roundBox) "(\"$text\")" else "[\"$text\"]"
   }
