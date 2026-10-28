@@ -20,9 +20,9 @@ abstract class ContextUpdater {
     get() = if (terminalNode) {
       val statuses = outcomes.values.map { it.serviceStatus.uiStatusName }.distinct()
       if (statuses.size == 1) {
-        "return status ${statuses.first()}"
+        statuses.first()
       } else {
-        "return status as one of:\n" + statuses.joinToString(separator = ",\n ")
+        statuses.joinToString(separator = ",\n ")
       }
     } else {
       val statuses = outcomes.values.map { it.serviceStatus.uiStatusName }.distinct()
@@ -64,7 +64,7 @@ abstract class ContextUpdater {
 
     /** Always set the value of [EvaluationContext.currentResult] to the same given value */
     fun constant(result: ServiceResultNew): ContextUpdater = object : ContextUpdater() {
-      override val description = "Set ${result.serviceStatus.name}"
+      override val description = "Set ${result.serviceStatus.uiStatusName}"
 
       override val outcomes = mapOf(
         "constant" to ServiceResultSpec(

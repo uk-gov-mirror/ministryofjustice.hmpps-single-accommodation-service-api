@@ -36,10 +36,10 @@ class DecisionTreeBuilderTest {
     val builder = DecisionTreeBuilder(engine)
     val expectedResult = buildServiceResultNew(serviceStatus = ServiceStatusNew.CAS1_PLACEMENT_BOOKED)
 
-    assertThat(builder.confirmed().name).isEqualTo("return current status")
-    assertThat(builder.notEligible(ServiceType.CAS1).name).isEqualTo("return status Not Eligible")
-    assertThat(builder.notRequired(ServiceType.DTR).name).isEqualTo("return status Not Required")
-    assertThat(builder.outcome(expectedResult).name).isEqualTo("return status Placement Booked")
+    assertThat(builder.confirmed().name).isEqualTo("current status")
+    assertThat(builder.notEligible(ServiceType.CAS1).name).isEqualTo("Not Eligible")
+    assertThat(builder.notRequired(ServiceType.DTR).name).isEqualTo("Not Required")
+    assertThat(builder.outcome(expectedResult).name).isEqualTo("Placement Booked")
   }
 
   @Test

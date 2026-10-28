@@ -28,10 +28,10 @@ class DecisionTreeBuilder(
   )
 
   /** Creates a terminal outcome node that returns a fixed ServiceResult. */
-  fun outcome(result: ServiceResultNew) = OutcomeNode(name = "return status ${result.serviceStatus.uiStatusName}") { _ -> result }
+  fun outcome(result: ServiceResultNew) = OutcomeNode(name = result.serviceStatus.uiStatusName) { _ -> result }
 
   /** Creates a terminal outcome node that returns the current context's ServiceResult. */
-  fun confirmed() = OutcomeNode("return current status") { ctx ->
+  fun confirmed() = OutcomeNode("current status") { ctx ->
     val result = requireNotNull(ctx.currentResult) {
       "confirmed() reached without a currentResult being set - a context updater is missing earlier in the tree"
     }
@@ -56,6 +56,6 @@ class DecisionTreeBuilder(
   }
 
   /** Creates a terminal outcome node for NOT_ELIGIBLE status */
-  fun notEligible(service: ServiceType) = OutcomeNode("return status ${toNotEligibleServiceStatus(service).uiStatusName}") { ctx -> toNotEligibleServiceResult(service, ctx.currentResult?.failureReasons ?: emptyList()) }
-  fun notRequired(service: ServiceType) = OutcomeNode("return status ${toNotRequiredServiceStatus(service).uiStatusName}") { ctx -> toNotRequiredServiceResult(service, ctx.currentResult?.failureReasons ?: emptyList()) }
+  fun notEligible(service: ServiceType) = OutcomeNode(toNotEligibleServiceStatus(service).uiStatusName) { ctx -> toNotEligibleServiceResult(service, ctx.currentResult?.failureReasons ?: emptyList()) }
+  fun notRequired(service: ServiceType) = OutcomeNode(toNotRequiredServiceStatus(service).uiStatusName) { ctx -> toNotRequiredServiceResult(service, ctx.currentResult?.failureReasons ?: emptyList()) }
 }

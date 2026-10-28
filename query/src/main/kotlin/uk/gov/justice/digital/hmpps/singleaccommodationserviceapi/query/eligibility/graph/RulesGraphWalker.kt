@@ -107,7 +107,7 @@ class RulesGraphWalker {
   )
 
   private fun ContextUpdater.toGraphNode() = GraphNode(
-    id = ensureUniqueId(slug(description), this),
+    id = ensureUniqueId("updater_" + slug(description), this),
     title = description,
     kind = GraphNodeKind.CONTEXT_UPDATER,
     onPassContextUpdater = null,
