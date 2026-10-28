@@ -58,6 +58,12 @@ flowchart TD
   updater_Set_current_status_to_Upcoming -->|FAIL| Eligibility_Tier
   linkStyle 0,2,4,6,9 stroke:green,stroke-width:2px
   linkStyle 1,3,5,7,8,10,11 stroke:red,stroke-width:2px
+  classDef ruleSetNode fill:#FFF8E1,stroke:#C9B37E,color:#333
+  classDef outcomeNode fill:#DCEEFB,stroke:#7FA7C9,color:#333
+  classDef updaterNode fill:#EDE7F6,stroke:#A99BC9,color:#333
+  class Upcoming,Suitability,Eligibility_Tier,Eligibility_Current_Accommodation,Eligibility_Rosh ruleSetNode
+  class updater_Arrived___Not_Arrived___Placement_Booked___Placement_Cancelled___Placement_Request_Not_Started___Placement_Request_Withdrawn___Placement_Request_Rejected___Placement_Request_Submitted___Information_Requested___Submitted,current_status,Not_Eligible outcomeNode
+  class updater_Set_current_status_to_one_of__Not_Submitted___Application_Rejected___Not_Started,updater_Set_current_status_to_Upcoming updaterNode
 ```
 
 ### Nodes
@@ -202,6 +208,12 @@ flowchart TD
   updater_Set_current_status_to_Upcoming -->|FAIL| Eligibility_Person
   linkStyle 0,2,4,6,8,10,13 stroke:green,stroke-width:2px
   linkStyle 1,3,5,7,9,11,12,14,15 stroke:red,stroke-width:2px
+  classDef ruleSetNode fill:#FFF8E1,stroke:#C9B37E,color:#333
+  classDef outcomeNode fill:#DCEEFB,stroke:#7FA7C9,color:#333
+  classDef updaterNode fill:#EDE7F6,stroke:#A99BC9,color:#333
+  class Upcoming,Suitability,Eligibility_Person,Eligibility_Release_Date,Eligibility_Current_Accommodation,Eligibility_Next_Accommodation,Eligibility_Rosh ruleSetNode
+  class updater_Submitted___More_Information_Needed___Awaiting_Decision___On_Waiting_List___Place_Offered___Offer_Accepted___Unknown___Arrived___Awaiting_Arrival,current_status,Not_Eligible outcomeNode
+  class updater_Set_current_status_to_one_of__Not_Started___Not_Submitted___Offer_Declined_or_Withdrawn___Cancelled___Withdrawn___Unknown,updater_Set_current_status_to_Upcoming updaterNode
 ```
 
 ### Nodes
@@ -349,6 +361,12 @@ flowchart TD
   updater_Set_current_status_to_Upcoming -->|FAIL| Eligibility_Current_Accommodation
   linkStyle 0,2,4,6,8,11 stroke:green,stroke-width:2px
   linkStyle 1,3,5,7,9,10,12,13 stroke:red,stroke-width:2px
+  classDef ruleSetNode fill:#FFF8E1,stroke:#C9B37E,color:#333
+  classDef outcomeNode fill:#DCEEFB,stroke:#7FA7C9,color:#333
+  classDef updaterNode fill:#EDE7F6,stroke:#A99BC9,color:#333
+  class Upcoming,Suitability,Eligibility_Current_Accommodation,Eligibility_Next_Accommodation,Eligibility_Rosh,Prerequisite ruleSetNode
+  class updater_Bedspace_Offered___Booking_Confirmed___Not_Arrived___Booking_Cancelled___Submitted___Arrived,current_status,updater_Cannot_Start_Yet,Not_Eligible outcomeNode
+  class updater_Set_current_status_to_one_of__Not_Started___Rejected___Not_Submitted,updater_Set_current_status_to_Upcoming updaterNode
 ```
 
 ### Nodes
@@ -468,6 +486,12 @@ flowchart TD
   updater_Set_current_status_to_Upcoming -->|FAIL| Eligibility_Settled
   linkStyle 0,2,4,7 stroke:green,stroke-width:2px
   linkStyle 1,3,5,6,8,9 stroke:red,stroke-width:2px
+  classDef ruleSetNode fill:#FFF8E1,stroke:#C9B37E,color:#333
+  classDef outcomeNode fill:#DCEEFB,stroke:#7FA7C9,color:#333
+  classDef updaterNode fill:#EDE7F6,stroke:#A99BC9,color:#333
+  class Upcoming,Completion,Eligibility_Settled,Eligibility_Next_Accommodation ruleSetNode
+  class Submitted,current_status,Not_Required outcomeNode
+  class updater_Set_current_status_to_Not_Started,updater_Set_current_status_to_Upcoming updaterNode
 ```
 
 ### Nodes
@@ -523,7 +547,7 @@ flowchart TD
   updater_Accepted___Not_Accepted___Submitted["<b>Accepted</b>,
  <b>Not Accepted</b>,
  <b>Submitted</b>"]
-  updater_Set_Not_Started["Set <b>Not Started</b>"]
+  updater_Set_current_status_to_Not_Started["Set current status to <b>Not Started</b>"]
   Eligibility("Eligibility (1)
 
 - FAIL if candidate has next accommodation")
@@ -534,14 +558,20 @@ flowchart TD
   updater_Upcoming["<b>Upcoming</b>"]
   Not_Required["<b>Not Required</b>"]
   Suitability -->|PASS| updater_Accepted___Not_Accepted___Submitted
-  Suitability -->|FAIL| updater_Set_Not_Started
+  Suitability -->|FAIL| updater_Set_current_status_to_Not_Started
   Upcoming -->|PASS| current_status
   Upcoming -->|FAIL| updater_Upcoming
   Eligibility -->|PASS| Upcoming
   Eligibility -->|FAIL| Not_Required
-  updater_Set_Not_Started -->|FAIL| Eligibility
+  updater_Set_current_status_to_Not_Started -->|FAIL| Eligibility
   linkStyle 0,2,4 stroke:green,stroke-width:2px
   linkStyle 1,3,5,6 stroke:red,stroke-width:2px
+  classDef ruleSetNode fill:#FFF8E1,stroke:#C9B37E,color:#333
+  classDef outcomeNode fill:#DCEEFB,stroke:#7FA7C9,color:#333
+  classDef updaterNode fill:#EDE7F6,stroke:#A99BC9,color:#333
+  class Suitability,Eligibility,Upcoming ruleSetNode
+  class updater_Accepted___Not_Accepted___Submitted,current_status,updater_Upcoming,Not_Required outcomeNode
+  class updater_Set_current_status_to_Not_Started updaterNode
 ```
 
 ### Nodes
@@ -559,7 +589,7 @@ flowchart TD
 | DTR_ACCEPTED | - | - |
 | DTR_NOT_ACCEPTED | - | - |
 | DTR_SUBMITTED | ADD_DTR_OUTCOME (DTR) | - |
-- FAIL: Set Not Started
+- FAIL: Set current status to Not Started
 
 | Status | Action | Link type |
 | --- | --- | --- |
@@ -598,7 +628,7 @@ flowchart TD
 
 - FAIL if candidate has no next accommodation")
   Completed["<b>Completed</b>"]
-  updater_Set_Not_Started["Set <b>Not Started</b>"]
+  updater_Set_current_status_to_Not_Started["Set current status to <b>Not Started</b>"]
   Eligibility("Eligibility (2)
 
 - FAIL if candidate has a suitable CAS1 application
@@ -606,19 +636,25 @@ flowchart TD
   current_status["current status"]
   Not_Eligible["<b>Not Eligible</b>"]
   Completion -->|PASS| Completed
-  Completion -->|FAIL| updater_Set_Not_Started
+  Completion -->|FAIL| updater_Set_current_status_to_Not_Started
   Eligibility -->|PASS| current_status
   Eligibility -->|FAIL| Not_Eligible
-  updater_Set_Not_Started -->|FAIL| Eligibility
+  updater_Set_current_status_to_Not_Started -->|FAIL| Eligibility
   linkStyle 0,2 stroke:green,stroke-width:2px
   linkStyle 1,3,4 stroke:red,stroke-width:2px
+  classDef ruleSetNode fill:#FFF8E1,stroke:#C9B37E,color:#333
+  classDef outcomeNode fill:#DCEEFB,stroke:#7FA7C9,color:#333
+  classDef updaterNode fill:#EDE7F6,stroke:#A99BC9,color:#333
+  class Completion,Eligibility ruleSetNode
+  class Completed,current_status,Not_Eligible outcomeNode
+  class updater_Set_current_status_to_Not_Started updaterNode
 ```
 
 ### Nodes
 
 **Completion** (RuleSet) `PaCompletionRuleSet`
 - [`HasNextAccommodationRule`](../query/src/main/kotlin/uk/gov/justice/digital/hmpps/singleaccommodationserviceapi/query/eligibility/domain/pa/completion/HasNextAccommodationRule.kt): FAIL if candidate has no next accommodation
-- FAIL: Set Not Started
+- FAIL: Set current status to Not Started
 
 | Status | Action | Link type |
 | --- | --- | --- |
@@ -885,7 +921,7 @@ Used by: Upcoming (DTR) on fail
 | DTR_UPCOMING | SUBMIT_DTR_REFERRAL (DTR) | - |
 
 
-Set Not Started
+Set current status to Not Started
 
 Used by: Completion (PA) on fail
 
@@ -894,7 +930,7 @@ Used by: Completion (PA) on fail
 | PA_NOT_STARTED | ADD_AND_CONFIRM_PROPOSED_ADDRESS (PA) | - |
 
 
-Set Not Started
+Set current status to Not Started
 
 Used by: Suitability (DTR) on fail
 

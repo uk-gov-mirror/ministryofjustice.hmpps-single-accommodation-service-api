@@ -64,7 +64,7 @@ abstract class ContextUpdater {
 
     /** Always set the value of [EvaluationContext.currentResult] to the same given value */
     fun constant(result: ServiceResultNew): ContextUpdater = object : ContextUpdater() {
-      override val description = "Set ${result.serviceStatus.uiStatusName}"
+      override val description = "Set current status to ${result.serviceStatus.uiStatusName}"
 
       override val outcomes = mapOf(
         "constant" to ServiceResultSpec(

@@ -36,6 +36,7 @@ data class GraphNode(
   val ruleSet: RuleSet? = null,
   val onPassContextUpdater: ContextUpdaterInfo? = null,
   val onFailContextUpdater: ContextUpdaterInfo? = null,
+  val terminal: Boolean = false,
 )
 
 data class GraphEdge(

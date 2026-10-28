@@ -103,6 +103,10 @@ object RulesGraphMarkdownRenderer {
           appendLine("  linkStyle ${indexes.joinToString(",")} stroke:$colour,stroke-width:2px")
         }
       }
+      nodeStyles.forEach { (styleClass, style) -> appendLine("  classDef $styleClass $style") }
+      graph.nodes.groupBy { nodeStyleClass(it) }.forEach { (styleClass, nodes) ->
+        appendLine("  class ${nodes.joinToString(",") { it.id }} $styleClass")
+      }
       appendLine("```")
       // mermaid drawing closed
       appendLine()
@@ -152,6 +156,18 @@ object RulesGraphMarkdownRenderer {
   }
 
   private val edgeStyles = mapOf("PASS" to "green", "FAIL" to "red")
+
+  private val nodeStyles = linkedMapOf(
+    "ruleSetNode" to "fill:#FFF8E1,stroke:#C9B37E,color:#333",
+    "outcomeNode" to "fill:#DCEEFB,stroke:#7FA7C9,color:#333",
+    "updaterNode" to "fill:#EDE7F6,stroke:#A99BC9,color:#333",
+  )
+
+  private fun nodeStyleClass(node: GraphNode): String = when {
+    node.kind == GraphNodeKind.RULE_SET -> "ruleSetNode"
+    node.kind == GraphNodeKind.OUTCOME || node.terminal -> "outcomeNode"
+    else -> "updaterNode"
+  }
 
   // Longest names first so e.g. "Placement Request Not Started" wins over "Not Started"
   private val uiStatusRegex = ServiceStatusNew.entries

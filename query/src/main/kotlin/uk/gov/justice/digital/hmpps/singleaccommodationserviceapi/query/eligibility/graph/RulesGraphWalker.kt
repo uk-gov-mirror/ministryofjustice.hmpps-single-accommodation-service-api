@@ -112,6 +112,7 @@ class RulesGraphWalker {
     kind = GraphNodeKind.CONTEXT_UPDATER,
     onPassContextUpdater = null,
     onFailContextUpdater = null,
+    terminal = terminalNode,
   )
 
   fun treeName(provider: EligibilityTreeProvider): String = provider::class.simpleName
