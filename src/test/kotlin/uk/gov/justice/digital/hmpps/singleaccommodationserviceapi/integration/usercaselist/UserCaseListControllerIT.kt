@@ -216,6 +216,7 @@ class UserCaseListControllerIT : IntegrationTestBase() {
     assertThat(userCaseListEntryRepository.findAll()).isEmpty()
   }
   companion object {
+    private val customListEntryCreatedAt = Instant.parse("2026-11-09T10:00:00.123456Z")
     private val allCrns = setOf("A111111", "B222222", "C333333", "D444444")
 
     @JvmStatic
@@ -361,7 +362,7 @@ class UserCaseListControllerIT : IntegrationTestBase() {
   fun `PATCH adds a normalised crn without replacing existing custom list entries`() {
     val existingCase = caseRepository.save(buildCaseEntity { withCrn("A123456") })
     val existingEntry = userCaseListEntryRepository.save(
-      buildUserCaseListEntryEntity(sasUserId = deliusUser.id, sasCaseId = existingCase.id),
+      buildUserCaseListEntryEntity(sasUserId = deliusUser.id, sasCaseId = existingCase.id, createdAt = customListEntryCreatedAt),
     )
     ProbationIntegrationDeliusStubs.postCaseSummariesForCrns("B654321")
 
@@ -382,13 +383,14 @@ class UserCaseListControllerIT : IntegrationTestBase() {
     val case = caseRepository.save(buildCaseEntity { withCrn("A123456") })
     val lastUpdatedAt = Instant.parse("2026-11-09T10:00:00Z")
     val otherEntry = userCaseListEntryRepository.save(
-      buildUserCaseListEntryEntity(sasUserId = otherUser.id, sasCaseId = case.id, lastUpdatedAt = lastUpdatedAt),
+      buildUserCaseListEntryEntity(sasUserId = otherUser.id, sasCaseId = case.id, createdAt = customListEntryCreatedAt, lastUpdatedAt = lastUpdatedAt),
     )
     val historyEntry = userCaseListEntryRepository.save(
       buildUserCaseListEntryEntity(
         sasUserId = deliusUser.id,
         sasCaseId = case.id,
         listType = CaseListType.SEARCH_HISTORY,
+        createdAt = customListEntryCreatedAt,
         lastUpdatedAt = lastUpdatedAt,
       ),
     )
@@ -408,7 +410,7 @@ class UserCaseListControllerIT : IntegrationTestBase() {
   fun `PATCH rejects invalid crn formats without changing the list`(crn: String) {
     val existingCase = caseRepository.save(buildCaseEntity { withCrn("A123456") })
     val existingEntry = userCaseListEntryRepository.save(
-      buildUserCaseListEntryEntity(sasUserId = deliusUser.id, sasCaseId = existingCase.id),
+      buildUserCaseListEntryEntity(sasUserId = deliusUser.id, sasCaseId = existingCase.id, createdAt = customListEntryCreatedAt),
     )
 
     patchUserCaseList(crn).expectStatus().isBadRequest
@@ -424,7 +426,7 @@ class UserCaseListControllerIT : IntegrationTestBase() {
   fun `PATCH rejects an unrecognised crn without changing the list or creating a case`() {
     val existingCase = caseRepository.save(buildCaseEntity { withCrn("A123456") })
     val existingEntry = userCaseListEntryRepository.save(
-      buildUserCaseListEntryEntity(sasUserId = deliusUser.id, sasCaseId = existingCase.id),
+      buildUserCaseListEntryEntity(sasUserId = deliusUser.id, sasCaseId = existingCase.id, createdAt = customListEntryCreatedAt),
     )
     ProbationIntegrationDeliusStubs.postCaseSummariesForCrns()
 
