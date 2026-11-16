@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
@@ -86,5 +87,28 @@ class UserCaseListController(
     caseApplicationService.createValidatedCases(distinctCrns)
     userCaseListApplicationService.createUserCaseList(user.id, CaseListType.CUSTOM, distinctCrns)
     return ResponseEntity(HttpStatus.CREATED)
+  }
+
+  @PreAuthorize("hasAnyRole('SINGLE_ACCOMMODATION_SERVICE_PROBATION_PRACTITIONER')")
+  @PatchMapping("/case-list/custom")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  fun updateCustomCaseList(
+    @RequestBody
+    crn: String,
+  ): ResponseEntity<Void> {
+    val normalisedCrn = crn.trim().uppercase()
+
+    if (!CRN_REGEX.matches(normalisedCrn)) {
+      throw ValidationException("$CRN_FORMAT_MESSAGE. $normalisedCrn is not a valid CRN format")
+    }
+
+    val user = userService.authorizeAndRetrieveUser()
+    if (userCaseListApplicationService.isInCustomList(user.id, normalisedCrn)) {
+      return ResponseEntity(HttpStatus.NO_CONTENT)
+    }
+
+    caseApplicationService.createValidatedCases(listOf(normalisedCrn))
+    userCaseListApplicationService.addCaseToCustomList(user.id, normalisedCrn)
+    return ResponseEntity(HttpStatus.NO_CONTENT)
   }
 }

@@ -357,6 +357,129 @@ class UserCaseListControllerIT : IntegrationTestBase() {
     assertThat(caseRepository.findByCrn("B654321")).isNull()
   }
 
+  @Test
+  fun `PATCH adds a normalised crn without replacing existing custom list entries`() {
+    val existingCase = caseRepository.save(buildCaseEntity { withCrn("A123456") })
+    val existingEntry = userCaseListEntryRepository.save(
+      buildUserCaseListEntryEntity(sasUserId = deliusUser.id, sasCaseId = existingCase.id),
+    )
+    ProbationIntegrationDeliusStubs.postCaseSummariesForCrns("B654321")
+
+    patchUserCaseList(" b654321 ").expectStatus().isNoContent
+      .expectBody().isEmpty
+
+    val newCase = caseRepository.findByCrn("B654321")
+    assertThat(newCase).isNotNull()
+    val entries = userCaseListEntryRepository.findAllBySasUserIdAndListType(deliusUser.id, CaseListType.CUSTOM)
+    assertThat(entries.map { it.sasCaseId }).containsExactlyInAnyOrder(existingCase.id, newCase!!.id)
+    assertThat(entries.single { it.id == existingEntry.id }).usingRecursiveComparison().isEqualTo(existingEntry)
+    assertThat(caseRefreshRequestRepository.findAll().map { it.caseId }).containsExactly(newCase.id)
+  }
+
+  @Test
+  fun `PATCH adds a persisted case without changing another users list or search history`() {
+    val otherUser = userRepository.save(buildUserEntity(username = "other-user"))
+    val case = caseRepository.save(buildCaseEntity { withCrn("A123456") })
+    val lastUpdatedAt = Instant.parse("2026-11-09T10:00:00Z")
+    val otherEntry = userCaseListEntryRepository.save(
+      buildUserCaseListEntryEntity(sasUserId = otherUser.id, sasCaseId = case.id, lastUpdatedAt = lastUpdatedAt),
+    )
+    val historyEntry = userCaseListEntryRepository.save(
+      buildUserCaseListEntryEntity(
+        sasUserId = deliusUser.id,
+        sasCaseId = case.id,
+        listType = CaseListType.SEARCH_HISTORY,
+        lastUpdatedAt = lastUpdatedAt,
+      ),
+    )
+
+    patchUserCaseList("A123456").expectStatus().isNoContent
+
+    val entries = userCaseListEntryRepository.findAll()
+    assertThat(entries).hasSize(3)
+    assertThat(entries.single { it.id == otherEntry.id }).usingRecursiveComparison().isEqualTo(otherEntry)
+    assertThat(entries.single { it.id == historyEntry.id }).usingRecursiveComparison().isEqualTo(historyEntry)
+    assertThat(entries.filter { it.sasUserId == deliusUser.id && it.listType == CaseListType.CUSTOM }.map { it.sasCaseId })
+      .containsExactly(case.id)
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = ["123456", "AB12345", "A12345", "A1234567", "A12B456", " "])
+  fun `PATCH rejects invalid crn formats without changing the list`(crn: String) {
+    val existingCase = caseRepository.save(buildCaseEntity { withCrn("A123456") })
+    val existingEntry = userCaseListEntryRepository.save(
+      buildUserCaseListEntryEntity(sasUserId = deliusUser.id, sasCaseId = existingCase.id),
+    )
+
+    patchUserCaseList(crn).expectStatus().isBadRequest
+      .expectBody()
+      .jsonPath("$.userMessage").isEqualTo("Validation failure: Enter a valid format for all CRNs. For example, D016821. ${crn.trim()} is not a valid CRN format")
+
+    assertThat(userCaseListEntryRepository.findAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(existingEntry)
+    assertThat(caseRefreshRequestRepository.findAll()).isEmpty()
+    sasWiremock.verify(0, postRequestedFor(urlPathEqualTo("/probation-cases/summaries")))
+  }
+
+  @Test
+  fun `PATCH rejects an unrecognised crn without changing the list or creating a case`() {
+    val existingCase = caseRepository.save(buildCaseEntity { withCrn("A123456") })
+    val existingEntry = userCaseListEntryRepository.save(
+      buildUserCaseListEntryEntity(sasUserId = deliusUser.id, sasCaseId = existingCase.id),
+    )
+    ProbationIntegrationDeliusStubs.postCaseSummariesForCrns()
+
+    patchUserCaseList("B654321").expectStatus().isBadRequest
+      .expectBody()
+      .jsonPath("$.userMessage").isEqualTo("B654321")
+
+    assertThat(userCaseListEntryRepository.findAll()).usingRecursiveFieldByFieldElementComparator().containsExactly(existingEntry)
+    assertThat(caseRepository.findByCrn("B654321")).isNull()
+    assertThat(caseRefreshRequestRepository.findAll()).isEmpty()
+  }
+
+  @Test
+  fun `PATCH requires authentication`() {
+    webTestClient.patch().uri("/case-list/custom")
+      .contentType(MediaType.APPLICATION_JSON)
+      .bodyValue("A123456")
+      .exchange()
+      .expectStatus().isUnauthorized
+
+    assertThat(userCaseListEntryRepository.findAll()).isEmpty()
+    assertThat(caseRefreshRequestRepository.findAll()).isEmpty()
+  }
+
+  @Test
+  fun `PATCH requires the probation practitioner role`() {
+    webTestClient.patch().uri("/case-list/custom")
+      .contentType(MediaType.APPLICATION_JSON)
+      .bodyValue("A123456")
+      .withDeliusUserJwt(roles = listOf("ROLE_SOME_OTHER_ROLE"))
+      .exchange()
+      .expectStatus().isForbidden
+
+    assertThat(userCaseListEntryRepository.findAll()).isEmpty()
+    assertThat(caseRefreshRequestRepository.findAll()).isEmpty()
+  }
+
+  @Test
+  fun `does not refresh or update a case already in the custom list`() {
+    val existingCase = caseRepository.save(buildCaseEntity { withCrn("A123456") })
+    val lastUpdatedAt = Instant.parse("2026-11-09T10:00:00Z")
+    val existingEntry = userCaseListEntryRepository.save(
+      buildUserCaseListEntryEntity(
+        sasUserId = deliusUser.id,
+        sasCaseId = existingCase.id,
+        lastUpdatedAt = lastUpdatedAt,
+      ),
+    )
+
+    patchUserCaseList("a123456").expectStatus().isNoContent
+
+    assertThat(userCaseListEntryRepository.findById(existingEntry.id).get().lastUpdatedAt).isEqualTo(lastUpdatedAt)
+    assertThat(caseRefreshRequestRepository.findAll()).isEmpty()
+  }
+
   @Nested
   inner class GetUserCaseList {
 
@@ -812,6 +935,12 @@ class UserCaseListControllerIT : IntegrationTestBase() {
   private fun postUserCaseList(crns: List<String>) = webTestClient.post().uri("/case-list/custom")
     .contentType(MediaType.APPLICATION_JSON)
     .bodyValue(crns.joinToString(prefix = "[", postfix = "]") { "\"$it\"" })
+    .withDeliusUserJwt()
+    .exchange()
+
+  private fun patchUserCaseList(crn: String) = webTestClient.patch().uri("/case-list/custom")
+    .contentType(MediaType.APPLICATION_JSON)
+    .bodyValue(crn)
     .withDeliusUserJwt()
     .exchange()
 }

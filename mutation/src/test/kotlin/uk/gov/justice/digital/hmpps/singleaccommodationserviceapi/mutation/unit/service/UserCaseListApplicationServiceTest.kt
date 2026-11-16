@@ -90,6 +90,81 @@ class UserCaseListApplicationServiceTest {
   }
 
   @Test
+  fun `should lock the user and check membership before adding a case to the custom list`() {
+    val case = buildCaseEntity()
+    every { caseRepository.findByCrn(crn) } returns case
+    every {
+      userCaseListEntryRepository.existsBySasUserIdAndListTypeAndSasCaseId(userId, CaseListType.CUSTOM, case.id)
+    } returns false
+    every { clock.instant() } returns now
+
+    userCaseListApplicationService.addCaseToCustomList(userId, crn)
+
+    verifyOrder {
+      userRepository.findByIdForUpdate(userId)
+      userCaseListEntryRepository.existsBySasUserIdAndListTypeAndSasCaseId(userId, CaseListType.CUSTOM, case.id)
+      userCaseListEntryRepository.insertOrUpdate(userId, CaseListType.CUSTOM, case.id, now)
+    }
+  }
+
+  @Test
+  fun `should throw NotFoundException without updating the custom list when the case does not exist`() {
+    every { caseRepository.findByCrn(crn) } returns null
+
+    assertThatThrownBy { userCaseListApplicationService.addCaseToCustomList(userId, crn) }
+      .isInstanceOf(NotFoundException::class.java)
+
+    verify(exactly = 0) { userCaseListEntryRepository.insertOrUpdate(any(), any(), any(), any()) }
+  }
+
+  @Test
+  fun `should not update a case already in the custom list`() {
+    val case = buildCaseEntity()
+    every { caseRepository.findByCrn(crn) } returns case
+    every {
+      userCaseListEntryRepository.existsBySasUserIdAndListTypeAndSasCaseId(userId, CaseListType.CUSTOM, case.id)
+    } returns true
+
+    userCaseListApplicationService.addCaseToCustomList(userId, crn)
+
+    verifyOrder {
+      userRepository.findByIdForUpdate(userId)
+      userCaseListEntryRepository.existsBySasUserIdAndListTypeAndSasCaseId(userId, CaseListType.CUSTOM, case.id)
+    }
+    verify(exactly = 0) { userCaseListEntryRepository.insertOrUpdate(any(), any(), any(), any()) }
+  }
+
+  @Test
+  fun `should report whether a case is already in the custom list`() {
+    val case = buildCaseEntity()
+    every { caseRepository.findByCrn(crn) } returns case
+    every {
+      userCaseListEntryRepository.existsBySasUserIdAndListTypeAndSasCaseId(userId, CaseListType.CUSTOM, case.id)
+    } returns true
+
+    assertThat(userCaseListApplicationService.isInCustomList(userId, crn)).isTrue()
+  }
+
+  @Test
+  fun `should report that a persisted case is not in the custom list when it has no entry`() {
+    val case = buildCaseEntity()
+    every { caseRepository.findByCrn(crn) } returns case
+    every {
+      userCaseListEntryRepository.existsBySasUserIdAndListTypeAndSasCaseId(userId, CaseListType.CUSTOM, case.id)
+    } returns false
+
+    assertThat(userCaseListApplicationService.isInCustomList(userId, crn)).isFalse()
+  }
+
+  @Test
+  fun `should report that a case is not in the custom list when it is not persisted`() {
+    every { caseRepository.findByCrn(crn) } returns null
+
+    assertThat(userCaseListApplicationService.isInCustomList(userId, crn)).isFalse()
+    verify(exactly = 0) { userCaseListEntryRepository.existsBySasUserIdAndListTypeAndSasCaseId(any(), any(), any()) }
+  }
+
+  @Test
   fun `should throw NotFoundException and leave search history unchanged when the case does not exist`() {
     every { caseRepository.findByCrn(crn) } returns null
 
